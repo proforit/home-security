@@ -1,0 +1,11 @@
+Listen {{ webserverport }}
+<VirtualHost *:{{ webserverport }}>
+  ServerName {{ webservername }}
+  Alias "/capture" "/home/{{ webserveruser }}/capture"
+  DocumentRoot "/var/www/html"
+  <Directory "/home/{{ webserveruser }}/capture">
+    Options -Indexes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Require all granted
+  </Directory>
+</VirtualHost>

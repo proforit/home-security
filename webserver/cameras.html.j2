@@ -1,0 +1,37 @@
+<html>
+  <body>
+    <a href="/rpi.html">rpi</a><br>
+{%- for i in cameras %}
+{%- for j in i %}
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <video id="{{ j }}" controls></video>
+    <script>
+    if(Hls.isSupported())
+    {
+        var video = document.getElementById('{{ j }}');
+        var hls = new Hls();
+        hls.loadSource('/{{ j }}/index.m3u8');
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED,function()
+        {
+            video.play();
+        });
+    }
+    else if (video.canPlayType('application/vnd.apple.mpegurl'))
+    {
+        video.src = '/{{ j }}/index.m3u8';
+        video.addEventListener('canplay',function()
+        {
+            video.play();
+        });
+    }
+    </script>
+
+    <br>
+    <a href="/{{ j }}/index.m3u8">Apple Native</a>
+    <br>
+    <br>
+{%- endfor %}
+{%- endfor %}
+  </body>
+</html>

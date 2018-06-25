@@ -1,0 +1,27 @@
+# Home security (hsuser) setup
+useradd -rm {{ webserveruser }}
+mkdir -p /home/{{ webserveruser }}/capture
+
+vagranthome=/srv/vagrant
+
+# Firewall setup
+systemctl enable firewalld
+systemctl start firewalld
+firewall-cmd --permanent --zone=public --add-port={{ webserverport }}/tcp
+firewall-cmd --reload
+
+# Selinux setup
+setsebool httpd_read_user_content on
+setsebool httpd_enable_homedirs on
+semanage port -a -t http_port_t -p tcp {{ webserverport }}
+
+semanage fcontext -a -t httpd_sys_content_t "/home/{{ hsuser }}/capture(/.*)?"
+restorecon -R /home/{{ webserveruser }}/capture
+
+# web server setup
+jinja2 ${vagranthome}/webserver/home-security.conf.j2 ${vagranthome}/data.yaml > /etc/httpd/conf.d/home-security.conf
+jinja2 ${vagranthome}/webserver/cameras.html.j2 ${vagranthome}/data.yaml > /var/www/html/cameras.html
+systemctl enable httpd
+systemctl start httpd
+
+#/bin/cp -f /vagrant/webserver/home-security.conf /etc/httpd/conf.d/
